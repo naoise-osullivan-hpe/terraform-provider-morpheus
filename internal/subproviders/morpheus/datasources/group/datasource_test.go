@@ -1,6 +1,7 @@
 package group_test
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/HPE/terraform-provider-hpe/internal/provider"
 	"github.com/HPE/terraform-provider-hpe/internal/subproviders/morpheus"
 	"github.com/HPE/terraform-provider-hpe/internal/subproviders/morpheus/datasources/group/consts"
+	"github.com/HPE/terraform-provider-hpe/internal/subproviders/morpheus/testhelpers"
 )
 
 const providerConfig = `
@@ -54,21 +56,30 @@ func TestAccMorpheusFindGroupById(t *testing.T) {
 		t.Skip("Skipping slow test in short mode")
 	}
 
+	group := testhelpers.CreateGroup(t)
+
+	t.Cleanup(func() {
+		testhelpers.DeleteGroup(t, group.GetId())
+	})
+
+	groupID := fmt.Sprintf("%d", group.GetId())
+	groupName := group.GetName()
+
 	config := providerConfig + `
       data "hpe_morpheus_group" "test" {
-        id = 1
+        id = ` + groupID + `
       }`
 
 	checks := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr(
 			"data.hpe_morpheus_group.test",
 			"name",
-			"Jason",
+			groupName,
 		),
 		resource.TestCheckResourceAttr(
 			"data.hpe_morpheus_group.test",
 			"id",
-			"1",
+			groupID,
 		),
 	}
 
@@ -90,21 +101,30 @@ func TestAccMorpheusFindGroupByName(t *testing.T) {
 		t.Skip("Skipping slow test in short mode")
 	}
 
+	group := testhelpers.CreateGroup(t)
+
+	t.Cleanup(func() {
+		testhelpers.DeleteGroup(t, group.GetId())
+	})
+
+	groupID := fmt.Sprintf("%d", group.GetId())
+	groupName := group.GetName()
+
 	config := providerConfig + `
       data "hpe_morpheus_group" "test" {
-        name = "Jason" 
+        name = "` + groupName + `" 
       }`
 
 	checks := []resource.TestCheckFunc{
 		resource.TestCheckResourceAttr(
 			"data.hpe_morpheus_group.test",
 			"name",
-			"Jason",
+			groupName,
 		),
 		resource.TestCheckResourceAttr(
 			"data.hpe_morpheus_group.test",
 			"id",
-			"1",
+			groupID,
 		),
 	}
 
